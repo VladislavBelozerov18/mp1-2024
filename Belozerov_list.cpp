@@ -1,147 +1,191 @@
-// вставка в начало и конец односвязного списка, перестановка максимального с последним элементом
-
+// РІСЃС‚Р°РІРєР° РІ РЅР°С‡Р°Р»Рѕ Рё РІ РєРѕРЅРµС† РѕРґРЅРѕСЃРІСЏР·РЅРѕРіРѕ СЃРїРёСЃРєР°, РїРѕРёСЃРє РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Рё РїРѕСЃР»РµРґРЅРµРіРѕ(СЂРµР°Р»РёР·Р°С†РёСЏ swap) 
 #include <iostream>
-#include <stdexcept>
-
+#include <cmath>  
 
 using namespace std;
 
 template <typename T>
 struct Node {
-	T key;
-	Node<T>* pNext;
+    T data;
+    Node<T>* next;
 
-	Node(const T& value): key(value), pNext(nullptr){}
+    Node(const T& value) : data(value), next(nullptr) {}
 };
 
-
-
-template  <typename T> 
+template <typename T>
 class LinkedList {
 private:
-	Node<T>* head;
+    Node<T>* head;
 
 public:
-	LinkedList(): head(nullptr)
-	{}
+    LinkedList() : head(nullptr) {}
 
-	~LinkedList() {
-		//clear();
-	}
+    ~LinkedList() {
+        while (head != nullptr) {
+            Node<T>* temp = head;
+            head = head->next;
+            delete temp;
+        }
+    }
 
-	LinkedList(const LinkedList&) = delete;
-	LinkedList operator =(const LinkedList&) = delete;
+    LinkedList(const LinkedList&) = delete;
+    LinkedList operator =(const LinkedList&) = delete;
 
-	void push_front(const T& value) {
-		Node<T>* newNode = new Node<T>(value);
-		newNode->pNext = head;
-		head = newNode;
-	}
+    void pushFront(const T& value) {
+        Node<T>* newNode = new Node<T>(value);
+        newNode->next = head;
+        head = newNode;
+    }
 
-	void pushback(const T& value) {
-		Node<T>* newNode = new Node<T>(value);
+    void pushBack(const T& value) {
+        Node<T>* newNode = new Node<T>(value);
 
-		if (head == nullptr) {
-			head = newNode;
-		}
-		else {
-			Node<T>* current = head;
+        if (head == nullptr) {
+            head = newNode;
+        }
+        else {
+            Node<T>* current = head;
 
-			while (current->pNext != nullptr) {
-				current = current->pNext;
-			}
-			current->pNext = newNode;
-		}
-	}
+            while (current->next != nullptr) {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+    }
 
-	void print() const {
-		if (head == nullptr) {
-			cout << "Список пуст\n";
-			return;
-		}
+    void print() const {
+        if (head == nullptr) {
+            cout << "List is empty\n";
+            return;
+        }
 
-		Node<T>* current = head;
-		while (current != nullptr) {
-			cout << current->key;
+        Node<T>* current = head;
+        while (current != nullptr) {
+            cout << current->data;
 
-			if (current->pNext != nullptr) {
-				cout << " -> ";
-			}
-			current = current->pNext;
-		}
-		cout << std::endl;
-	}
+            if (current->next != nullptr) {
+                cout << " -> ";
+            }
+            current = current->next;
+        }
+        cout << endl;
+    }
 
-	void swapMaxWithLast() {
-		if (head == nullptr || head->pNext == nullptr) return;
+    void swapMaxWithLast() {
+        if (head == nullptr || head->next == nullptr) return;
 
-		Node<T>* maxNode = head;
-		Node<T>* prevMax = nullptr;
-		Node<T>* current = head->pNext;
-		Node<T>* prev = head;
+        Node<T>* maxNode = head;
+        Node<T>* prevMax = nullptr;
+        Node<T>* current = head->next;
+        Node<T>* prev = head;
 
-		while (current != nullptr) {
-			if (current->key > maxNode->key) {
-				maxNode = current;
-				prevMax = prev;
-			}
-			prev = current;
-			current = current->pNext;
-		}
+        while (current != nullptr) {
+            if (current->data > maxNode->data) {
+                maxNode = current;
+                prevMax = prev;
+            }
+            prev = current;
+            current = current->next;
+        }
 
-		Node<T>* lastNode = prev;
-		Node<T>* prevlast = nullptr;
+        Node<T>* lastNode = prev;
 
-		current = head;
-		while (current != nullptr && current->pNext != lastNode) {
-			current = current->pNext;
-		}
-		prevlast = current;
-		if (maxNode == lastNode) return;
+        Node<T>* prevLast = nullptr;
+        current = head;
+        while (current != nullptr && current->next != nullptr) {
+            if (current->next == lastNode) {
+                prevLast = current;
+                break;
+            }
+            current = current->next;
+        }
 
-		if (maxNode == head) {
-			head = maxNode->pNext;
-			maxNode->pNext = lastNode->pNext;
-			if (prevlast != nullptr) {
-				prevlast->pNext = maxNode;
-				prevlast->pNext = head;
-				head = lastNode;
-			}
-			else if (maxNode->pNext = lastNode) {
-				prevMax->pNext = lastNode;
-				maxNode->pNext = lastNode->pNext;
-				lastNode->pNext = maxNode;
-			}
-			else {
-				if (prevMax != nullptr)
-					prevMax->pNext = lastNode;
-				if (prevlast != nullptr)
-					prevlast->pNext = maxNode;
+        if (maxNode == lastNode) return;
 
-				Node<T>* temp = maxNode->pNext;
-				maxNode->pNext = lastNode->pNext;
-					lastNode->pNext = temp;
-			}
-		}
-	}
+        if (maxNode == head) {
+            if (maxNode->next == lastNode) {
+                head = lastNode;
+                maxNode->next = lastNode->next;
+                lastNode->next = maxNode;
+            }
+            else {
+                head = maxNode->next;
+                if (prevLast != nullptr) {
+                    prevLast->next = maxNode;
+                }
+                maxNode->next = lastNode->next;
+                lastNode->next = head;
+                head = lastNode;
+            }
+        }
+        else if (maxNode->next == lastNode) {
+            if (prevMax != nullptr) {
+                prevMax->next = lastNode;
+            }
+            maxNode->next = lastNode->next;
+            lastNode->next = maxNode;
+        }
+        else {
+            if (prevMax != nullptr)
+                prevMax->next = lastNode;
+            if (prevLast != nullptr)
+                prevLast->next = maxNode;
+
+            Node<T>* temp = maxNode->next;
+            maxNode->next = lastNode->next;
+            lastNode->next = temp;
+        }
+    }
+
+    bool isEmpty() const {
+        return head == nullptr;
+    }
+
+    int getSize() const {
+        int count = 0;
+        Node<T>* current = head;
+        while (current != nullptr) {
+            count++;
+            current = current->next;
+        }
+        return count;
+    }
 };
 
 int main() {
-	setlocale(LC_ALL, "Ru");
-	LinkedList<int> hh;
-	
-	cout << "Введите числа" << endl;
+    LinkedList<double> list;
 
-	int x;
-	while (true) {
-		cin >> x;
-		if (x == 0) break;
-		hh.pushback(x);
-	}
+    cout << "Enter real numbers. Enter 0 to finish" << endl;
+    cout << "Use dot (.) as decimal separator" << endl;
+    cout << "Example: 3.14 2.5 7.8 1.6 0" << endl;
 
-	hh.print();
+    double value;
+    while (true) {
+        cout << "> ";
+        cin >> value;
 
-	hh.swapMaxWithLast();
+        if (cin.fail()) {
+            cout << "Error! Please enter a number (e.g., 3.14): ";
+            cin.clear();
+            cin.ignore(10000, '\n');
+            continue;
+        }
 
-	hh.print();
+        if (fabs(value) < 1e-10) {
+            cout << "Input finished." << endl;
+            break;
+        }
+
+        list.pushBack(value);
+    }
+
+    cout << "\nOriginal list (" << list.getSize() << " elements): ";
+    list.print();
+
+    list.swapMaxWithLast();
+
+    cout << "After swap: ";
+    list.print();
+
+    return 0;
 }
